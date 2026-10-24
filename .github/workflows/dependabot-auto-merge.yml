@@ -43,10 +43,9 @@ jobs:
       #
       # GH_TOKEN has to be RELEASE_TOKEN, not GITHUB_TOKEN: a GITHUB_TOKEN
       # merge commit is suppressed from triggering further workflow runs,
-      # so release.yml would never fire on the resulting push to main and
-      # the merged dependency bump would sit invisible to release-please
-      # until some later, unrelated push touched main again. Confirmed
-      # live on PR #52 (#53).
+      # so publish.yml would never fire on the resulting push to main and
+      # a merged base-image bump would never become a published image
+      # until some later, unrelated push touched main again.
       - name: Enable auto-merge for patch and minor updates
         if: |
           steps.metadata.outputs.update-type == 'version-update:semver-patch' ||

@@ -2,8 +2,8 @@
 # biome.json's $schema names a version so editor autocomplete and validation
 # match the Biome actually running. Nothing keeps it in sync with the
 # @biomejs/biome version pinned in package.json - Dependabot bumps one and has
-# no reason to know the other field exists. That drifted twice (#36, #61)
-# before either was a manual, easy-to-forget fix.
+# no reason to know the other field exists. That drifted twice
+# before this check existed; the fix is manual and easy to forget.
 set -uo pipefail
 
 cd "$(dirname "$0")/.."

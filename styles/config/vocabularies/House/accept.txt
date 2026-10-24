@@ -58,3 +58,5 @@ gh
 shellcheck
 unzip
 sudo
+npx
+untrusted

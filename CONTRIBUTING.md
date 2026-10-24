@@ -3,7 +3,7 @@
 ## What you need
 
 - **bun** `1.3.14`, pinned in `.bun-version`. It installs the dev dependencies
-  and runs the hooks; there is no node in this repo any more.
+  and runs the hooks.
 - **Docker**, to build the image and to run hadolint. The image is about 2 GB, so
   leave room for it.
 - **shellcheck**, for the scripts.
@@ -41,8 +41,8 @@ shellcheck scripts/versions.sh scripts/build.sh scripts/smoke-local.sh test/smok
 
 To run it by hand: `bun run audit` lists every known vulnerability in the
 pinned dependencies, including ones the `Dependency advisories` ticket already
-tracks. It isn't a hook or a CI step, because CI's gate fails only on what a
-pull request adds.
+tracks. It isn't a hook or a CI step, because the gate in CI fails only on
+what a pull request adds.
 
 Prose is linted in tiers because they answer to different things. Layout is
 Prettier's, structure is markdownlint's, mechanics have a right answer, and
@@ -73,10 +73,10 @@ The first `bun run lint:mechanics` downloads ltex-ls-plus, which is about
 Vale fetches its style packages into `styles/` on first run; both of those
 directories are gitignored.
 
-CI adds one check the hooks cannot: it runs the built image and asserts it
-doesn't run as root and carries what it exists to carry. If Alpine renames or
-drops a package, `apk add` still succeeds for the rest and the build stays
-green, so the failure would otherwise turn up in whoever pulls the image.
+CI adds one check the hooks cannot: it builds the image and runs
+`test/smoke.sh` against it. A missing tool, or a Playwright or Bun version that
+differs from the Dockerfile, fails the pull request rather than whoever pulls
+the image.
 
 ## Commits
 

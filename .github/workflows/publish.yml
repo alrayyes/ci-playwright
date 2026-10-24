@@ -58,7 +58,8 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # Cached layers from the build above, so this is a push, not a second build.
+      # Cached layers from the build above, so this is a push, not a second build. If the
+      # builder ever loses them this rebuilds from scratch: slower, same result.
       - id: push
         uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
         with:

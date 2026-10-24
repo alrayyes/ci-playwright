@@ -55,7 +55,6 @@ jobs:
       options: --ipc=host
     steps:
       - uses: actions/checkout@v7
-      - run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
       - run: bun install --frozen-lockfile
       - run: bunx playwright test
 ```

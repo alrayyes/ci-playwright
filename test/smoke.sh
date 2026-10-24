@@ -19,7 +19,7 @@ check() {
   fi
 }
 
-# shellcheck disable=SC2329 # called through check()
+# shellcheck disable=SC2317,SC2329 # called through check()
 in_image() { docker run --rm "${image}" sh -c "$1"; }
 
 check "bun is ${bun}" in_image "[ \"\$(bun --version)\" = '${bun}' ]"
