@@ -8,8 +8,8 @@ What the image must carry and how it runs, so a Playwright CI job needs no insta
 ### Requirement: Image carries what a Playwright CI job needs
 The image SHALL contain Playwright's browsers in `/ms-playwright`, the
 `playwright` command and library at the version the browsers were built for,
-Bun with `bunx`, node and npx, git, gh, unzip, ImageMagick (`convert`), sudo,
-openssl and curl.
+Bun with `bunx`, node and npx, git, gh, unzip, ImageMagick (`convert`), lcov,
+pipx, sudo, openssl and curl.
 
 #### Scenario: Tools resolve
 - **WHEN** the image runs `command -v` for each tool

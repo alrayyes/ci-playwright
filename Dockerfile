@@ -22,6 +22,8 @@ ARG GH_SHA256=62ccf747115ddc61237efffdde66a3c8f70ba249433dc64f70801089b59c59c8
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
         imagemagick \
+        lcov \
+        pipx \
         sudo \
         unzip && \
     rm -rf /var/lib/apt/lists/* && \
