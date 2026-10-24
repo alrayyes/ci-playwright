@@ -1,0 +1,52 @@
+# Dependabot raises the pull request; CI decides whether it lands. Everything
+# here is pinned to an exact version, which is the whole reason this works —
+# a floating range drifts silently and there's nothing to raise a pull
+# request about.
+version: 2
+
+updates:
+  # The only ecosystem that changes what this repo ships: a base image bump
+  # is a change to the published artefact.
+  - package-ecosystem: docker
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+      timezone: Europe/Amsterdam
+    commit-message:
+      prefix: fix
+      include: scope
+
+  # Dev tooling only — the linter and its dependencies never end up in the
+  # image, so a bump here is housekeeping, not a change to what ships.
+  - package-ecosystem: bun
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+      timezone: Europe/Amsterdam
+    open-pull-requests-limit: 10
+    commit-message:
+      prefix: chore
+      include: scope
+    groups:
+      bun-dependencies:
+        patterns: ["*"]
+        update-types: [minor, patch]
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+      timezone: Europe/Amsterdam
+    commit-message:
+      prefix: ci
+      include: scope
+    groups:
+      actions:
+        patterns: ["*"]
+        update-types: [minor, patch]

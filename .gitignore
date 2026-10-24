@@ -1,0 +1,14 @@
+node_modules/
+.bun
+
+# Editor state is per-person and per-machine. Ignored here rather than left to
+# a contributor's global ignore file - this repo carried a stray .idea/ from a
+# different project for months, invisible to anyone whose global config hid it.
+.idea/
+
+# Vale downloads these; only styles/House/ and the vocabulary are ours.
+styles/Google/
+styles/proselint/
+
+# Where CI puts bun's cache. GitHub can only cache paths inside the project.
+.bun-cache/

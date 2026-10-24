@@ -1,0 +1,151 @@
+# What a pull request has to survive. Nothing here publishes; that is publish.yml's
+# job, and keeping the two apart is why a branch can never put a tag in the registry.
+#
+# GitHub's runners already carry node, git and docker, so a job here is the tool
+# and nothing else.
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+# A second push to the same branch makes the first run's answer worthless.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
+        with:
+          bun-version-file: .bun-version
+      # --frozen-lockfile so a drifted bun.lock fails the job rather than quietly
+      # resolving something else. Deliberately uncached: a cold install is seconds,
+      # and taring the cache to save them costs more than it saves.
+      - run: bun install --frozen-lockfile
+      - run: bun run lint
+      - run: bun run lint:pkg
+      - run: bun run check:biome-schema
+
+  # Fails only on advisories this change adds to bun.lock over its base
+  # (rules/dependencies.md). What is already on main is the scan's to track, in
+  # advisory-scan.yml, so a new advisory never turns an unrelated pull request
+  # red. The job always runs and reports, so it can be a required check; its
+  # steps run only when package.json or bun.lock changed, and on a push to main.
+  # bun audit reads the lockfile, so neither side needs an install. Separate from
+  # lint so a red job name says which one failed.
+  audit:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+      - id: changed
+        env:
+          EVENT: ${{ github.event_name }}
+          BASE: ${{ github.event.pull_request.base.sha }}
+        run: |
+          if [ "${EVENT}" != pull_request ]; then
+            echo "deps=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          # Taken into a variable first: a failing git diff (missing base) stops the
+          # step under bash -e and turns the job red, instead of skipping the gate.
+          files="$(git diff --name-only "${BASE}...HEAD")"
+          if grep -Eq '^(package\.json|bun\.lock|\.bun-version|\.github/workflows/ci\.yml)$' <<<"${files}"; then
+            echo "deps=true" >> "$GITHUB_OUTPUT"
+          fi
+      - if: steps.changed.outputs.deps == 'true'
+        uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
+        with:
+          bun-version-file: .bun-version
+      - if: steps.changed.outputs.deps == 'true'
+        uses: alrayyes/advisory-scan@c9f794de4354b870e159510f036779baf20f4a2f # v0.3.1
+        with:
+          mode: gate
+          command: bun audit
+
+  # Layout and structure. The two tiers that have a right answer and are cheap
+  # enough to run on every push; grammar and style are heavier and live in
+  # prose.yml.
+  #
+  # Prettier runs before markdownlint, never after. Prettier decides the layout
+  # and markdownlint judges what Prettier produced; the other order has
+  # markdownlint fixing something Prettier is about to overwrite.
+  markdown:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
+        with:
+          bun-version-file: .bun-version
+      - run: bun install --frozen-lockfile
+      - run: bun run format:check
+      - run: bun run lint:md
+
+  commits:
+    # Conventional Commits keep the history readable and the Dependabot commit
+    # prefixes meaningful.
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # Both endpoints have to be in the clone for commitlint to walk between
+          # them, and the default shallow fetch has neither.
+          fetch-depth: 0
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
+        with:
+          bun-version-file: .bun-version
+      # A real install, not bare bunx: commitlint resolves
+      # @commitlint/config-conventional as a sibling package.
+      - run: bun install --frozen-lockfile
+      - run: bunx commitlint --from ${{ github.event.pull_request.base.sha }} --to ${{ github.event.pull_request.head.sha }} --verbose
+
+  dockerfile:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: hadolint/hadolint-action@06be81baf89a55ffd0e24b8f04a4185738dd3387 # v3.5.0
+        with:
+          dockerfile: Dockerfile
+          config: .hadolint.yaml
+
+  shell:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - run: shellcheck scripts/versions.sh scripts/build.sh scripts/smoke-local.sh test/smoke.sh
+
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - id: versions
+        run: ./scripts/versions.sh >> "$GITHUB_OUTPUT"
+      # --pull so a base image already on the runner cannot make a broken FROM line
+      # look fine. Build only: the tag dies with the runner, and publish.yml is the
+      # only thing that pushes.
+      - run: >
+          docker build --pull -t ci-playwright:ci
+          --build-arg PLAYWRIGHT_VERSION=${{ steps.versions.outputs.PLAYWRIGHT_VERSION }}
+          --build-arg IMAGE_VERSION=${{ steps.versions.outputs.PLAYWRIGHT_VERSION }}
+          .
+      - run: >
+          test/smoke.sh ci-playwright:ci
+          ${{ steps.versions.outputs.PLAYWRIGHT_VERSION }}
+          ${{ steps.versions.outputs.BUN_VERSION }}

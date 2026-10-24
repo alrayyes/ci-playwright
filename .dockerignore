@@ -1,0 +1,13 @@
+.git
+.github
+.claude
+openspec
+
+node_modules
+.bun
+.bun-cache
+
+.idea
+
+styles/Google
+styles/proselint

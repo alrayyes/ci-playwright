@@ -1,0 +1,62 @@
+# CI and Playwright are deliberately absent. Vale.Terms matches the substring, so
+# listing them turns the repository name, ci-playwright, into an error.
+# Product and tool names, spelled the way their owners spell them. Vale.Terms
+# holds the prose to exactly these, so the casing here is the casing everywhere.
+Alpine
+Dockerfile
+Dependabot
+Forgejo
+GitHub
+GitLab
+GHCR
+ghcr\.io
+Prettier
+Contributor Covenant
+apk
+[Bb]un
+bunx
+busybox
+commitlint
+hadolint
+lefthook
+markdownlint
+OpenSpec
+[Ss]corecard
+
+# Ordinary words the spell checker does not carry. Each one is here because it
+# appears in this repository's prose, not on principle.
+[Dd]ev
+[Ee]ntrypoint
+allowlist
+changelog
+config
+CVE
+CVEs
+digest
+else's
+gitignored
+JSON
+linted
+misconfiguration
+repo
+restages
+runbook
+semver
+stderr
+stdout
+subcommand
+tailnet
+toolchain
+unexported
+unextended
+unpinned
+UTF-8
+YAML
+gh
+[Ii]mage[Mm]agick
+[Oo]pen[Ss][Ss][Ll]
+shellcheck
+unzip
+sudo
+npx
+untrusted

@@ -1,0 +1,59 @@
+skip_lfs: true
+
+commit-msg:
+  commands:
+    "lint commit message":
+      run: bunx commitlint --edit {1}
+
+# Never writes. A hook rewriting files under a push leaves the pushed commit and
+# the working tree disagreeing about what was reviewed.
+#
+# Vale and LTeX are here rather than in pre-commit: LTeX ships its own JVM and
+# is a ~300 MB download the first time, and Vale wants its style packages
+# fetched. After that a run over this repo's five documents is seconds, which is
+# cheap for something paid once a branch and far cheaper than finding a
+# misspelt product name from a red pipeline.
+pre-push:
+  parallel: true
+  jobs:
+    - run: bun run lint
+    - run: bun run lint:pkg
+    - run: bun run check:biome-schema
+    - run: bun run format:check
+    - run: bun run lint:md
+    - run: bun run lint:mechanics
+    - run: bun run lint:prose
+    - run: docker run --rm -i -v "$PWD/.hadolint.yaml:/.hadolint.yaml:ro" hadolint/hadolint:v2.15.1-alpine@sha256:a1d49ae1a4e83c1dbad26b8c1ad7588c8bd1e04f4866b34ad3cac50335198552 hadolint --config /.hadolint.yaml - < Dockerfile
+    - run: ./scripts/build.sh ci-playwright:pre-push && ./scripts/smoke-local.sh ci-playwright:pre-push
+
+# May write, but only to what the commit contains. Every job is handed
+# {staged_files}, so a half-finished file elsewhere in the tree can't fail, or
+# be rewritten by, a commit. A commit should not fail over a quote style or a
+# table alignment a tool can settle by itself, so every fixer runs and
+# `stage_fixed` restages what it touched. `docker build` doesn't look at the
+# commit at all; it runs in pre-push and CI.
+#
+# Prettier runs before markdownlint, never after: Prettier decides the layout
+# and markdownlint judges what Prettier produced. The other order has
+# markdownlint fixing something Prettier is about to overwrite.
+pre-commit:
+  parallel: false
+  jobs:
+    - run: bun run lint:fix {staged_files}
+      glob: "*.{js,jsx,ts,tsx,mjs,cjs,json,jsonc,css}"
+      stage_fixed: true
+    - run: bun run lint:pkg:fix {staged_files}
+      glob: "package.json"
+      stage_fixed: true
+    - run: bun run format {staged_files}
+      glob: "*.{md,yml,yaml}"
+      stage_fixed: true
+    - run: bun run lint:md:files {staged_files}
+      glob: "*.md"
+    # Reads the staged Dockerfile from the index, not the working tree.
+    - run: git show :Dockerfile | docker run --rm -i -v "$PWD/.hadolint.yaml:/.hadolint.yaml:ro" hadolint/hadolint:v2.15.1-alpine@sha256:a1d49ae1a4e83c1dbad26b8c1ad7588c8bd1e04f4866b34ad3cac50335198552 hadolint --config /.hadolint.yaml -
+      glob: "Dockerfile"
+    # Add any file a COPY pulls in to the glob. Tagged, so the hook cleans up after
+    # itself instead of leaving an untagged image behind on every commit.
+    - run: ./scripts/build.sh ci-playwright:pre-commit-check && docker rmi ci-playwright:pre-commit-check
+      glob: "Dockerfile"

@@ -1,0 +1,56 @@
+# Dependabot has no built-in `automerge: true` the way Renovate does. This is
+# that mechanism for a GitHub-primary repo: gate on the actor, wait for the
+# same checks every other pull request waits for, then arm auto-merge the
+# same way a human would from the UI.
+#
+# pull_request_target, not pull_request: this step needs RELEASE_TOKEN (see
+# below), and GitHub never passes repository secrets — anything but the
+# default GITHUB_TOKEN — into a pull_request run opened by Dependabot, to
+# stop a malicious dependency update from exfiltrating them. Confirmed live
+# on PR #58, where GH_TOKEN came through empty and the merge step failed.
+# pull_request_target runs in the base repo's context instead, which does
+# get secrets, and it's safe here specifically because Dependabot's pull
+# requests come from a branch on this repo, never a fork — there's no
+# untrusted checkout for pull_request_target's usual risk to apply to, and
+# this workflow doesn't check out any code either way.
+name: dependabot-auto-merge
+
+on: pull_request_target
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: dependabot-auto-merge-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  auto-merge:
+    if: github.actor == 'dependabot[bot]'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Dependabot metadata
+        id: metadata
+        uses: dependabot/fetch-metadata@25dd0e34f4fe68f24cc83900b1fe3fe149efef98 # v3.1.0
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      # Patch and minor only — dependabot.yml already groups those two
+      # together for the same reason. A major stays a pull request someone
+      # reads, the same as any other breaking change would.
+      #
+      # GH_TOKEN has to be RELEASE_TOKEN, not GITHUB_TOKEN: a GITHUB_TOKEN
+      # merge commit is suppressed from triggering further workflow runs,
+      # so publish.yml would never fire on the resulting push to main and
+      # a merged base-image bump would never become a published image
+      # until some later, unrelated push touched main again.
+      - name: Enable auto-merge for patch and minor updates
+        if: |
+          steps.metadata.outputs.update-type == 'version-update:semver-patch' ||
+          steps.metadata.outputs.update-type == 'version-update:semver-minor'
+        run: gh pr merge --auto --squash "$PR_URL"
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GH_TOKEN: ${{ secrets.RELEASE_TOKEN }}
