@@ -25,7 +25,7 @@ in_image() { docker run --rm "${image}" sh -c "$1"; }
 check "bun is ${bun}" in_image "[ \"\$(bun --version)\" = '${bun}' ]"
 check "bunx is ${bun}" in_image "[ \"\$(bunx --version)\" = '${bun}' ]"
 check "playwright is ${playwright}" in_image "playwright --version | grep -qx 'Version ${playwright}'"
-for tool in node npx git gh unzip convert sudo openssl curl; do
+for tool in node npx git gh unzip convert sudo openssl curl lcov pipx; do
   check "${tool} exists" in_image "command -v ${tool}"
 done
 check "git trusts any directory" in_image "git config --system --get-all safe.directory | grep -qx '\\*'"
