@@ -28,6 +28,7 @@ check "playwright is ${playwright}" in_image "playwright --version | grep -qx 'V
 for tool in node npx git gh unzip convert sudo openssl curl lcov pipx; do
   check "${tool} exists" in_image "command -v ${tool}"
 done
+check "runs as root" in_image "[ \"\$(id -u)\" = 0 ]"
 check "git trusts any directory" in_image "git config --system --get-all safe.directory | grep -qx '\\*'"
 check "browsers live in /ms-playwright" in_image "[ \"\$PLAYWRIGHT_BROWSERS_PATH\" = /ms-playwright ] && ls /ms-playwright | grep -q chromium"
 check "headless chromium loads a data: URL" docker run --rm --ipc=host "${image}" node -e "
