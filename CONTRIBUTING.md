@@ -129,7 +129,8 @@ Branch, push, open a pull request — nothing lands on `main` directly. Read you
 own diff first; if it carries two changes, say so at the top of the description
 rather than leaving it to be found.
 
-Label it from GitHub's standard set (`bug`, `enhancement`, `documentation`, ...).
+Label it from GitHub's standard set: `bug`, `enhancement` or
+`documentation`.
 
 Spend the description on **why**. The diff already says what.
 
