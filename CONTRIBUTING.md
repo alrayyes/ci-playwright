@@ -96,7 +96,10 @@ refactor and a feature are two commits.
   smoke test and the publish workflow all take their versions from it. Never
   write the version anywhere else.
 - **Bun comes from its own image** in a named stage, because Dependabot reads
-  `FROM` lines and nothing else. The `gh` version and checksum are build
+  `FROM` lines and nothing else. Dependabot takes Bun patch releases only: a
+  minor or major bump is made by hand, in the same sitting as every consumer's
+  `.bun-version`, because the floating Playwright tag carries whatever Bun is
+  current. The `gh` version and checksum are build
   arguments and move by hand, together.
 - **apt package versions are deliberately unpinned**, and DL3008 is off in
   `.hadolint.yaml` with the reason beside it. DL3002 is off too: the image runs
