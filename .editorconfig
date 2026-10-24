@@ -1,0 +1,21 @@
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+indent_style = space
+indent_size = 4
+trim_trailing_whitespace = true
+
+[*.md]
+indent_size = 2
+trim_trailing_whitespace = false
+
+[*.{yml,yaml}]
+indent_size = 2
+
+# Matches biome.json's formatter.indentStyle: Biome reads this file
+# (useEditorconfig) instead of the value being set twice.
+[*.{js,mjs,cjs,jsx,ts,mts,cts,tsx,json,jsonc,css,graphql,gql}]
+indent_style = tab

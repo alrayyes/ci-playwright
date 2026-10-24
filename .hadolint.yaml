@@ -1,0 +1,10 @@
+# DL3008 wants a version on every apt package. Those versions belong to the Ubuntu
+# release the base image is built on, and a base bump that crosses a release turns a
+# pin into a build failure. Only the base digest moves.
+#
+# DL3002 wants a non-root last USER. This image is built to be a CI job's own
+# `container:`, where actions/checkout breaks under a non-root user, and it
+# runs one short-lived job rather than a network-facing service.
+ignored:
+  - DL3008
+  - DL3002

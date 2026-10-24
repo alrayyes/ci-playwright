@@ -1,0 +1,80 @@
+# Publishes the image when main moves. The tags carry the Playwright version, which
+# consumers pin to match their @playwright/test, and a second tag adds the Bun
+# version: 1.64.1 and 1.64.1-bun1.3.14 resolve to the same digest. Both come from
+# the Dockerfile's FROM lines (scripts/versions.sh), so there is nothing to keep in
+# step by hand.
+#
+# Builds, smoke-tests and only then pushes, so a broken image never takes a tag.
+name: publish
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+# Never two publishes at once, and never cancel one halfway.
+concurrency:
+  group: publish
+  cancel-in-progress: false
+
+jobs:
+  image:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      packages: write # pushes the image to ghcr.io
+      id-token: write # signs the provenance attestation
+      attestations: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - id: versions
+        run: ./scripts/versions.sh >> "$GITHUB_OUTPUT"
+
+      - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
+
+      # Loaded into the local daemon first, so the smoke test runs what would be pushed.
+      - uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+        with:
+          context: .
+          load: true
+          pull: true
+          tags: ci-playwright:candidate
+          build-args: |
+            PLAYWRIGHT_VERSION=${{ steps.versions.outputs.PLAYWRIGHT_VERSION }}
+            IMAGE_VERSION=${{ steps.versions.outputs.PLAYWRIGHT_VERSION }}
+
+      - run: >
+          test/smoke.sh ci-playwright:candidate
+          ${{ steps.versions.outputs.PLAYWRIGHT_VERSION }}
+          ${{ steps.versions.outputs.BUN_VERSION }}
+
+      - uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # Cached layers from the build above, so this is a push, not a second build.
+      - id: push
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+        with:
+          context: .
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository }}:${{ steps.versions.outputs.PLAYWRIGHT_VERSION }}
+            ghcr.io/${{ github.repository }}:${{ steps.versions.outputs.PLAYWRIGHT_VERSION }}-bun${{ steps.versions.outputs.BUN_VERSION }}
+          build-args: |
+            PLAYWRIGHT_VERSION=${{ steps.versions.outputs.PLAYWRIGHT_VERSION }}
+            IMAGE_VERSION=${{ steps.versions.outputs.PLAYWRIGHT_VERSION }}
+
+      # Says, verifiably, that this digest came out of this workflow at this commit:
+      # `gh attestation verify oci://ghcr.io/alrayyes/ci-playwright:<tag> --repo alrayyes/ci-playwright`.
+      - uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
+        with:
+          subject-name: ghcr.io/${{ github.repository }}
+          subject-digest: ${{ steps.push.outputs.digest }}
+          push-to-registry: true

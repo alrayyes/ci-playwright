@@ -1,0 +1,42 @@
+{
+	"name": "ci-playwright",
+	"version": "0.0.0",
+	"private": true,
+	"description": "Prebuilt Playwright and Bun CI image",
+	"bugs": {
+		"url": "https://github.com/alrayyes/ci-playwright/issues"
+	},
+	"repository": "https://github.com/alrayyes/ci-playwright",
+	"license": "GPL-3.0-or-later",
+	"author": "Ryan Kes <511318+alrayyes@users.noreply.github.com>",
+	"scripts": {
+		"audit": "bun audit",
+		"check:biome-schema": "./scripts/check-biome-schema.sh",
+		"format": "prettier --write",
+		"format:check": "prettier --check \"**/*.{md,yml,yaml}\"",
+		"lint": "biome check",
+		"lint:fix": "biome check --write --no-errors-on-unmatched",
+		"lint:md": "markdownlint-cli2",
+		"lint:md:files": "markdownlint-cli2 --no-globs",
+		"lint:mechanics": "./scripts/lint-mechanics.sh",
+		"lint:pkg": "sort-package-json --check",
+		"lint:pkg:fix": "sort-package-json",
+		"lint:prose": "./scripts/lint-prose.sh",
+		"prepare": "lefthook install"
+	},
+	"overrides": {
+		"fast-uri": "3.1.9",
+		"katex": "0.19.0",
+		"markdown-it": "15.0.3",
+		"smol-toml": "1.9.0"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "2.5.15",
+		"@commitlint/cli": "21.2.4",
+		"@commitlint/config-conventional": "21.2.4",
+		"lefthook": "2.2.2",
+		"markdownlint-cli2": "0.24.0",
+		"prettier": "3.9.10",
+		"sort-package-json": "4.1.0"
+	}
+}

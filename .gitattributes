@@ -1,0 +1,9 @@
+* text=auto eol=lf
+*.{cmd,bat,ps1} text eol=crlf
+*.png binary
+*.jpg binary
+*.ico binary
+
+# Large and machine-generated; collapse it in diff views instead of
+# rendering the whole lockfile.
+bun.lock -diff
