@@ -2,7 +2,7 @@
 # updater reads FROM lines and no other. Bun comes from its own image in a named stage
 # for that reason; it is only a source for the COPY below, never the final image.
 # scripts/versions.sh reads both lines to derive the image tags and the labels.
-FROM oven/bun:1.3.14@sha256:e10577f0db68676a7024391c6e5cb4b879ebd17188ab750cf10024a6d700e5c4 AS bun
+FROM oven/bun:1.4.3@sha256:ec06c3b6cea04192ae6770c434f668ca41d343ad19fa6472216c7b48be39c598 AS bun
 
 # The tag must equal the consumers' @playwright/test version exactly, or Playwright
 # looks for browser builds that are not here. Browsers sit in /ms-playwright.
