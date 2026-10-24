@@ -32,6 +32,8 @@ RUN apt-get update && \
     rm -rf /tmp/gh.tgz "/tmp/gh_${GH_VERSION}_linux_amd64"
 
 COPY --from=bun /usr/local/bin/bun /usr/local/bin/bun
+# The official image ships bunx as a symlink to bun, and consumers call it.
+RUN ln -s /usr/local/bin/bun /usr/local/bin/bunx
 
 # The playwright CLI and library, at the version the browsers were built for.
 # PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD because they are already in /ms-playwright.
