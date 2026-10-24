@@ -20,8 +20,10 @@ consumers' `@playwright/test` version must also equal, and the
   `scripts/versions.sh`
 
 ### Requirement: Both tags share a digest
-Publishing SHALL push `<playwright>` and `<playwright>-bun<bun>` in one build,
-so they resolve to the same digest, and only after the smoke test has passed.
+Publishing SHALL push `<playwright>` and `<playwright>-bun<bun>` from one build,
+so they share the same layers and resolve to the same digest, and only after the
+smoke test has passed. The plain `<playwright>` tag floats: it moves to each
+rebuild, while `<playwright>-bun<bun>` names the Bun version in the tag.
 
 #### Scenario: Shared digest
 - **WHEN** both tags are inspected after a publish
