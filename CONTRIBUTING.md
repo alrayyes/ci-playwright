@@ -2,7 +2,7 @@
 
 ## What you need
 
-- **bun** `1.3.14`, pinned in `.bun-version`. It installs the dev dependencies
+- **bun** `1.4.4`, pinned in `.bun-version`. It installs the dev dependencies
   and runs the hooks.
 - **Docker**, to build the image and to run hadolint. The image is about 2 GB, so
   leave room for it.
