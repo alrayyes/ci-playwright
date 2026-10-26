@@ -1,6 +1,6 @@
 # Publishes the image when main moves. The tags carry the Playwright version, which
 # consumers pin to match their @playwright/test, and a second tag adds the Bun
-# version: 1.64.1 and 1.64.1-bun1.3.14 resolve to the same digest. Both come from
+# version: 1.64.1 and 1.64.1-bun1.4.4 resolve to the same digest. Both come from
 # the Dockerfile's FROM lines (scripts/versions.sh), so there is nothing to keep in
 # step by hand.
 #
