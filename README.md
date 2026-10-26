@@ -30,10 +30,10 @@ root, because `actions/checkout` breaks under a non-root user, and it is
 
 ## Tags
 
-| Tag                | Meaning                                            |
-| ------------------ | -------------------------------------------------- |
-| `1.64.1`           | Playwright 1.64.1, whatever Bun version is current |
-| `1.64.1-bun1.3.14` | the same image, with the Bun version spelled out   |
+| Tag               | Meaning                                            |
+| ----------------- | -------------------------------------------------- |
+| `1.64.1`          | Playwright 1.64.1, whatever Bun version is current |
+| `1.64.1-bun1.4.4` | the same image, with the Bun version spelled out   |
 
 Both resolve to one digest. **Pin the digest as well as the tag**: the tag moves
 when the image is rebuilt for a patched base or a newer `gh`.
