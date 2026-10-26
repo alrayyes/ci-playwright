@@ -34,10 +34,6 @@ updates:
       time: "06:00"
       timezone: Europe/Amsterdam
     open-pull-requests-limit: 10
-    # 2.6.0 does not install its platform binary under the pinned Bun 1.3.14 (#7).
-    ignore:
-      - dependency-name: "@biomejs/biome"
-        versions: ["2.6.x"]
     commit-message:
       prefix: chore
       include: scope
