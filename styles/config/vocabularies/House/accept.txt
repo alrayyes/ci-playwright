@@ -60,5 +60,7 @@ unzip
 sudo
 npx
 untrusted
+cgo
+gcc
 lcov
 pipx

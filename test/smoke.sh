@@ -28,6 +28,11 @@ check "playwright is ${playwright}" in_image "playwright --version | grep -qx 'V
 for tool in node npx git gh unzip convert sudo openssl curl lcov pipx; do
   check "${tool} exists" in_image "command -v ${tool}"
 done
+# What cgo needs: a C compiler and the libc headers (#26). Go itself is the
+# consumer's; compiling a program that includes the two headers cgo failed on is
+# the part the image owns.
+check "libc headers exist" in_image "test -f /usr/include/pthread.h && test -f /usr/include/errno.h"
+check "gcc builds a program using pthread.h and errno.h" in_image "printf '#include <pthread.h>\\n#include <errno.h>\\nint main(void){return errno;}\\n' > /tmp/t.c && gcc -pthread /tmp/t.c -o /tmp/t && /tmp/t"
 check "runs as root" in_image "[ \"\$(id -u)\" = 0 ]"
 check "git trusts any directory" in_image "git config --system --get-all safe.directory | grep -qx '\\*'"
 check "browsers live in /ms-playwright" in_image "[ \"\$PLAYWRIGHT_BROWSERS_PATH\" = /ms-playwright ] && ls /ms-playwright | grep -q chromium"

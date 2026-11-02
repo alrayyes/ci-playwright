@@ -9,11 +9,15 @@ What the image must carry and how it runs, so a Playwright CI job needs no insta
 The image SHALL contain Playwright's browsers in `/ms-playwright`, the
 `playwright` command and library at the version the browsers were built for,
 Bun with `bunx`, node and npx, git, gh, unzip, ImageMagick (`convert`), lcov,
-pipx, sudo, openssl and curl.
+pipx, sudo, openssl, curl, gcc and libc6-dev.
 
 #### Scenario: Tools resolve
 - **WHEN** the image runs `command -v` for each tool
 - **THEN** every one resolves
+
+#### Scenario: C compiles against libc
+- **WHEN** gcc compiles a program that includes `pthread.h` and `errno.h`
+- **THEN** it succeeds, so cgo builds work
 
 #### Scenario: bunx matches bun
 - **WHEN** the image runs `bunx --version`
