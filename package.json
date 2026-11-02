@@ -11,7 +11,6 @@
 	"author": "Ryan Kes <511318+alrayyes@users.noreply.github.com>",
 	"scripts": {
 		"audit": "bun audit",
-		"check:biome-schema": "./scripts/check-biome-schema.sh",
 		"format": "prettier --write",
 		"format:check": "prettier --check \"**/*.{md,yml,yaml}\"",
 		"lint": "biome check",
