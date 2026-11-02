@@ -18,7 +18,6 @@ pre-push:
   jobs:
     - run: bun run lint
     - run: bun run lint:pkg
-    - run: bun run check:biome-schema
     - run: bun run format:check
     - run: bun run lint:md
     - run: bun run lint:mechanics

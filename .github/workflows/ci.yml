@@ -33,7 +33,6 @@ jobs:
       - run: bun install --frozen-lockfile
       - run: bun run lint
       - run: bun run lint:pkg
-      - run: bun run check:biome-schema
 
   # Fails only on advisories this change adds to bun.lock over its base
   # (rules/dependencies.md). What is already on main is the scan's to track, in

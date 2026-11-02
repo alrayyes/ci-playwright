@@ -27,7 +27,6 @@ Run what the pipeline runs:
 ```sh
 bun run lint                # biome: JSON, and anything else it supports
 bun run lint:pkg            # sort-package-json: canonical key order
-bun run check:biome-schema  # biome.json's $schema vs. the pinned @biomejs/biome
 bun run format:check        # prettier: Markdown and YAML layout
 bun run lint:md             # markdownlint: structure, links, heading levels
 bun run lint:mechanics      # ltex: grammar and spelling
