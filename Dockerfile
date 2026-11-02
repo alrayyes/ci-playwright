@@ -13,16 +13,20 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 ARG GH_VERSION=2.103.2
 ARG GH_SHA256=62ccf747115ddc61237efffdde66a3c8f70ba249433dc64f70801089b59c59c8
 
-# What a CI job otherwise installs on every run. Deliberately unpinned apt packages:
-# they belong to the Ubuntu release the base is built on, and only the digest above
+# What a CI job otherwise installs on every run. gcc and libc6-dev are there for
+# cgo: the base image has carried neither, and a bump of it must not decide that.
+#
+# Deliberately unpinned apt packages: they belong to the Ubuntu release the base is built on, and only the digest above
 # moves when it does (.hadolint.yaml).
 #
 # gh is the release tarball rather than the Ubuntu package, which lags by years, and
 # is checked against the published checksum.
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
+        gcc \
         imagemagick \
         lcov \
+        libc6-dev \
         pipx \
         sudo \
         unzip && \

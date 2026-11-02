@@ -22,6 +22,7 @@ ghcr.io/alrayyes/ci-playwright:1.64.1
 | git, gh                                 | git trusts any directory, because the checkout belongs to another user |
 | unzip, imagemagick (`convert`)          | what the Playwright jobs already needed                                |
 | lcov, pipx                              | coverage reports without a network install in the job                  |
+| gcc, libc6-dev                          | cgo builds (`go build` with `CGO_ENABLED=1`) in the job                |
 | sudo, openssl, curl                     | the rest of what a job otherwise installs                              |
 
 There is no Go. Keep `actions/setup-go` where a job needs it. The image runs as
