@@ -13,10 +13,11 @@ on:
 permissions:
   contents: read
 
-# A second push to the same branch makes the first run's answer worthless.
+# A second push to a pull request branch makes the first run's answer worthless.
+# Main is exempt: every commit there keeps its own result.
 concurrency:
   group: ci-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 jobs:
   lint:
