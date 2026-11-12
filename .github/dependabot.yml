@@ -20,6 +20,11 @@ updates:
       - dependency-name: oven/bun
         update-types:
           ["version-update:semver-minor", "version-update:semver-major"]
+      # The release stays noble, the one the Playwright image is built on; only
+      # the digest moves.
+      - dependency-name: ubuntu
+        update-types:
+          ["version-update:semver-minor", "version-update:semver-major"]
     commit-message:
       prefix: fix
       include: scope

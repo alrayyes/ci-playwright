@@ -3,7 +3,7 @@
 [![CI](https://github.com/alrayyes/ci-playwright/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/alrayyes/ci-playwright/actions/workflows/ci.yml)
 [![licence](https://img.shields.io/badge/licence-GPL--3.0--or--later-blue)](LICENSE)
 
-A prebuilt CI image with Playwright's browsers, Bun, Node, git and gh, so a job
+A prebuilt CI image with Playwright's Chromium, Bun, Node, git and gh, so a job
 stops running `bunx playwright install --with-deps chromium` on every run. That
 step costs minutes each time and sometimes hangs for ten.
 
@@ -15,7 +15,7 @@ ghcr.io/alrayyes/ci-playwright:1.64.1
 
 | Tool                                    | Why                                                                    |
 | --------------------------------------- | ---------------------------------------------------------------------- |
-| Playwright browsers in `/ms-playwright` | the point of the image                                                 |
+| Chromium in `/ms-playwright`            | the point of the image                                                 |
 | `playwright` command and library        | at the version the browsers were built for                             |
 | Bun                                     | the version in the tag, from the Dockerfile                            |
 | node, npx                               | `actions/checkout` is a node program                                   |
@@ -25,7 +25,10 @@ ghcr.io/alrayyes/ci-playwright:1.64.1
 | gcc, libc6-dev                          | cgo builds (`go build` with `CGO_ENABLED=1`) in the job                |
 | sudo, openssl, curl                     | the rest of what a job otherwise installs                              |
 
-There is no Go. Keep `actions/setup-go` where a job needs it. The image runs as
+There is no Firefox and no WebKit: the image carries Chromium (with its headless
+shell and ffmpeg) only, which is what every consumer runs and what Lighthouse
+launches through `chromium.executablePath()`. A job that needs another browser
+runs `bunx playwright install --with-deps firefox` itself. There is no Go. Keep `actions/setup-go` where a job needs it. The image runs as
 root, because `actions/checkout` breaks under a non-root user, and it is
 `linux/amd64` only.
 
