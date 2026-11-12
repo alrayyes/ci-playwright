@@ -24,13 +24,23 @@ ghcr.io/alrayyes/ci-playwright:1.64.1
 | lcov, pipx                              | coverage reports without a network install in the job                  |
 | gcc, libc6-dev                          | cgo builds (`go build` with `CGO_ENABLED=1`) in the job                |
 | sudo, openssl, curl                     | the rest of what a job otherwise installs                              |
+| zstd, openssh-client                    | `actions/cache`, and git over ssh                                      |
 
-There is no Firefox and no WebKit: the image carries Chromium (with its headless
-shell and ffmpeg) only, which is what every consumer runs and what Lighthouse
-launches through `chromium.executablePath()`. A job that needs another browser
-runs `bunx playwright install --with-deps firefox` itself. There is no Go. Keep `actions/setup-go` where a job needs it. The image runs as
+There is no Go. Keep `actions/setup-go` where a job needs it. The image runs as
 root, because `actions/checkout` breaks under a non-root user, and it is
 `linux/amd64` only.
+
+## What differs from the Playwright image
+
+Chromium only: no Firefox and no WebKit. The image carries Chromium with its
+headless shell and `ffmpeg`, which is what every consumer runs and what
+Lighthouse launches through `chromium.executablePath()`. A job that needs
+another browser runs `bunx playwright install --with-deps firefox` itself.
+
+It builds on plain Ubuntu rather than the Playwright image, and it needs
+BuildKit. Three things the Playwright image had are gone, because nothing here
+uses them: yarn, wget and gpg, plus the Node headers for native addon builds.
+`zstd` (for `actions/cache`) and `openssh-client` are installed.
 
 ## Tags
 

@@ -38,10 +38,12 @@ RUN apt-get update && \
         imagemagick \
         lcov \
         libc6-dev \
+        openssh-client \
         openssl \
         pipx \
         sudo \
-        unzip && \
+        unzip \
+        zstd && \
     rm -rf /var/lib/apt/lists/* && \
     curl -fsSL "https://github.com/cli/cli/releases/download/v${GH_VERSION}/gh_${GH_VERSION}_linux_amd64.tar.gz" -o /tmp/gh.tgz && \
     echo "${GH_SHA256}  /tmp/gh.tgz" | sha256sum -c - && \
