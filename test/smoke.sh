@@ -25,7 +25,7 @@ in_image() { docker run --rm "${image}" sh -c "$1"; }
 check "bun is ${bun}" in_image "[ \"\$(bun --version)\" = '${bun}' ]"
 check "bunx is ${bun}" in_image "[ \"\$(bunx --version)\" = '${bun}' ]"
 check "playwright is ${playwright}" in_image "playwright --version | grep -qx 'Version ${playwright}'"
-for tool in node npx git gh unzip convert sudo openssl curl lcov pipx; do
+for tool in node npx git gh unzip convert sudo openssl curl lcov pipx zstd ssh; do
   check "${tool} exists" in_image "command -v ${tool}"
 done
 # What cgo needs: a C compiler and the libc headers (#26). Go itself is the
@@ -46,6 +46,17 @@ const { chromium } = require('playwright');
   await b.close();
 })().catch(() => process.exit(1));
 "
+# Chromium only (#36): Firefox and WebKit are about 600 MB of browsers, and the libraries they need, that nobody runs.
+check "no firefox or webkit browsers in /ms-playwright" in_image "! ls /ms-playwright | grep -E '^(firefox|webkit)'"
+check "chromium headless shell is in /ms-playwright" in_image "ls /ms-playwright | grep -q '^chromium_headless_shell-'"
+check "ffmpeg is in /ms-playwright (video recording)" in_image "ls /ms-playwright | grep -q '^ffmpeg-'"
+# Lighthouse runs the browser itself: CHROME_PATH from the playwright library.
+# shellcheck disable=SC2016 # the script is for the container shell to expand
+check "chromium.executablePath() dumps a page headless" docker run --rm --ipc=host "${image}" bash -c '
+CHROME_PATH="$(node -p "require(\"playwright\").chromium.executablePath()")"
+test -x "${CHROME_PATH}" &&
+  "${CHROME_PATH}" --headless=new --no-sandbox --disable-gpu --dump-dom "data:text/html,<title>ok</title>" | grep -q "<title>ok</title>"
+'
 check "io.playwright.version label is ${playwright}" \
   bash -c "[ \"\$(docker inspect -f '{{ index .Config.Labels \"io.playwright.version\" }}' '${image}')\" = '${playwright}' ]"
 check "org.opencontainers.image.version label is set" \

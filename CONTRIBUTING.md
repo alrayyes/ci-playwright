@@ -4,8 +4,8 @@
 
 - **bun** `1.4.4`, pinned in `.bun-version`. It installs the dev dependencies
   and runs the hooks.
-- **Docker**, to build the image and to run hadolint. The image is about 2 GB, so
-  leave room for it.
+- **Docker** with `BuildKit`, to build the image and to run hadolint. The image
+  is about 2 GB uncompressed, so leave room for it.
 - **shellcheck**, for the scripts.
 
 That is the whole toolchain. Everything else arrives through `bun install`.
