@@ -8,8 +8,12 @@ stops running `bunx playwright install --with-deps chromium` on every run. That
 step costs minutes each time and sometimes hangs for ten.
 
 ```text
-ghcr.io/alrayyes/ci-playwright:1.64.1
+ghcr.io/alrayyes/ci-playwright:<version>
 ```
+
+`<version>` is the Playwright version, such as the one in the Dockerfile's
+Playwright `FROM` line. [The package page](https://github.com/alrayyes/ci-playwright/pkgs/container/ci-playwright)
+lists the tags that exist.
 
 ## What's in it
 
@@ -45,10 +49,10 @@ the `pwuser` account, and the `nodesource` apt source with `/usr/bin/nodejs`.
 
 ## Tags
 
-| Tag               | Meaning                                            |
-| ----------------- | -------------------------------------------------- |
-| `1.64.1`          | Playwright 1.64.1, whatever Bun version is current |
-| `1.64.1-bun1.4.4` | the same image, with the Bun version spelled out   |
+| Tag                  | Meaning                                                 |
+| -------------------- | ------------------------------------------------------- |
+| `<version>`          | Playwright `<version>`, whatever Bun version is current |
+| `<version>-bun<bun>` | the same image, with the Bun version spelled out        |
 
 Both resolve to one digest. **Pin the digest as well as the tag**: the tag moves
 when the image is rebuilt for a patched base or a newer `gh`.
@@ -67,7 +71,7 @@ jobs:
   e2e:
     runs-on: ubuntu-24.04
     container:
-      image: ghcr.io/alrayyes/ci-playwright:1.64.1@sha256:<digest>
+      image: ghcr.io/alrayyes/ci-playwright:<version>@sha256:<digest>
       options: --ipc=host
     steps:
       - uses: actions/checkout@v7
@@ -76,7 +80,7 @@ jobs:
 ```
 
 `--ipc=host` stops Chromium running out of shared memory. Find the digest with
-`docker buildx imagetools inspect ghcr.io/alrayyes/ci-playwright:1.64.1`.
+`docker buildx imagetools inspect ghcr.io/alrayyes/ci-playwright:<version>`.
 
 The Forgejo runners at git.higherlearning.eu pull from ghcr.io as well, so the
 package has to be public. The image needs no registry credentials.
@@ -84,7 +88,7 @@ package has to be public. The image needs no registry credentials.
 Verify where an image came from:
 
 ```sh
-gh attestation verify oci://ghcr.io/alrayyes/ci-playwright:1.64.1 --repo alrayyes/ci-playwright
+gh attestation verify oci://ghcr.io/alrayyes/ci-playwright:<version> --repo alrayyes/ci-playwright
 ```
 
 ## Cutting a version

@@ -35,7 +35,8 @@ bun run lint:prose          # vale: house style
 docker run --rm -i -v "$PWD/.hadolint.yaml:/.hadolint.yaml:ro" hadolint/hadolint:v2.15.1-alpine@sha256:a1d49ae1a4e83c1dbad26b8c1ad7588c8bd1e04f4866b34ad3cac50335198552 hadolint --config /.hadolint.yaml - < Dockerfile
 scripts/build.sh ci-playwright:local
 scripts/smoke-local.sh ci-playwright:local
-shellcheck scripts/versions.sh scripts/build.sh scripts/smoke-local.sh test/smoke.sh
+test/readme-versions.sh
+shellcheck scripts/versions.sh scripts/build.sh scripts/smoke-local.sh test/smoke.sh test/readme-versions.sh
 ```
 
 To run it by hand: `bun run audit` lists every known vulnerability in the
