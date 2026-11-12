@@ -50,11 +50,30 @@ export JAVA_HOME="$jdk"
 # written by the release job, and .claude/ and openspec/ are OpenSpec's own
 # generated docs and template-format change files; correcting any of them is
 # not this script's business.
-files=$(git ls-files '*.md' |
+all=$(git ls-files '*.md' |
   grep -v '^CODE_OF_CONDUCT.md$' |
   grep -v '^CHANGELOG.md$' |
   grep -v '^\.claude/' |
   grep -v '^openspec/')
+
+# Run bare (CI, `bun run lint:mechanics`), it checks all of them. The pre-push
+# hook passes the files in the push: only the Markdown among them is checked,
+# so a push that changed one document doesn't start a JVM over every one. A push
+# that includes .ltex.json or this script, which can change the verdict on any
+# file, checks them all, as CI would.
+files=$all
+if [ $# -gt 0 ]; then
+  if printf '%s\n' "$@" | grep -Eq '^(\.ltex\.json|scripts/lint-mechanics\.sh)$'; then
+    files=$all
+  else
+    pushed=$(printf '%s\n' "$@" | grep -Fx -f <(printf '%s\n' "$all") || true)
+    if [ -z "$pushed" ]; then
+      echo "No prose in this push for ltex to check."
+      exit 0
+    fi
+    files=$pushed
+  fi
+fi
 
 echo "Checking:"
 echo "$files"

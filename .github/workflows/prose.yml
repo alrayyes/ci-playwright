@@ -19,6 +19,7 @@ on:
       - .ltex.json
       - styles/**
       - scripts/lint-*.sh
+      - scripts/test-lint-*.sh
       - .github/workflows/prose.yml
   pull_request:
     paths:
@@ -27,6 +28,7 @@ on:
       - .ltex.json
       - styles/**
       - scripts/lint-*.sh
+      - scripts/test-lint-*.sh
       - .github/workflows/prose.yml
   workflow_dispatch:
 
@@ -60,6 +62,9 @@ jobs:
         # about the version, the file list, or what counts as a failure. It
         # fetches ltex-ls-plus itself and caches it outside the repository.
         run: ./scripts/lint-mechanics.sh
+
+      - name: Check the mechanics hook
+        run: ./scripts/test-lint-mechanics.sh
 
   style:
     runs-on: ubuntu-24.04
