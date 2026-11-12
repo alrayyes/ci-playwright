@@ -13,18 +13,18 @@ ghcr.io/alrayyes/ci-playwright:1.64.1
 
 ## What's in it
 
-| Tool                                    | Why                                                                    |
-| --------------------------------------- | ---------------------------------------------------------------------- |
-| Chromium in `/ms-playwright`            | the point of the image                                                 |
-| `playwright` command and library        | at the version the browsers were built for                             |
-| Bun                                     | the version in the tag, from the Dockerfile                            |
-| node, npx                               | `actions/checkout` is a node program                                   |
-| git, gh                                 | git trusts any directory, because the checkout belongs to another user |
-| unzip, imagemagick (`convert`)          | what the Playwright jobs already needed                                |
-| lcov, pipx                              | coverage reports without a network install in the job                  |
-| gcc, libc6-dev                          | cgo builds (`go build` with `CGO_ENABLED=1`) in the job                |
-| sudo, openssl, curl                     | the rest of what a job otherwise installs                              |
-| zstd, openssh-client                    | `actions/cache`, and git over ssh                                      |
+| Tool                             | Why                                                                    |
+| -------------------------------- | ---------------------------------------------------------------------- |
+| Chromium in `/ms-playwright`     | the point of the image                                                 |
+| `playwright` command and library | at the version the browsers were built for                             |
+| Bun                              | the version in the tag, from the Dockerfile                            |
+| node, npx                        | `actions/checkout` is a node program                                   |
+| git, gh                          | git trusts any directory, because the checkout belongs to another user |
+| unzip, imagemagick (`convert`)   | what the Playwright jobs already needed                                |
+| lcov, pipx                       | coverage reports without a network install in the job                  |
+| gcc, libc6-dev                   | cgo builds (`go build` with `CGO_ENABLED=1`) in the job                |
+| sudo, openssl, curl              | the rest of what a job otherwise installs                              |
+| `zstd`, `openssh-client`         | `actions/cache`, and git over ssh                                      |
 
 There is no Go. Keep `actions/setup-go` where a job needs it. The image runs as
 root, because `actions/checkout` breaks under a non-root user, and it is
@@ -38,8 +38,9 @@ Lighthouse launches through `chromium.executablePath()`. A job that needs
 another browser runs `bunx playwright install --with-deps firefox` itself.
 
 It builds on plain Ubuntu rather than the Playwright image, and it needs
-BuildKit. Three things the Playwright image had are gone, because nothing here
-uses them: yarn, wget and gpg, plus the Node headers for native addon builds.
+`BuildKit`. Some things the Playwright image had are gone, because nothing here
+uses them: `yarn`, `wget` and `gpg`, the Node headers for native module builds,
+the `pwuser` account, and the `nodesource` apt source with `/usr/bin/nodejs`.
 `zstd` (for `actions/cache`) and `openssh-client` are installed.
 
 ## Tags
