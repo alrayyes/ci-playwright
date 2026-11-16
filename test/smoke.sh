@@ -25,7 +25,8 @@ in_image() { docker run --rm "${image}" sh -c "$1"; }
 check "bun is ${bun}" in_image "[ \"\$(bun --version)\" = '${bun}' ]"
 check "bunx is ${bun}" in_image "[ \"\$(bunx --version)\" = '${bun}' ]"
 check "playwright is ${playwright}" in_image "playwright --version | grep -qx 'Version ${playwright}'"
-for tool in node npx git gh unzip convert sudo openssl curl lcov pipx zstd ssh; do
+# gpg: codecov/codecov-action refuses to run without it (#46).
+for tool in node npx git gh unzip convert sudo openssl curl lcov pipx zstd ssh gpg; do
   check "${tool} exists" in_image "command -v ${tool}"
 done
 # What cgo needs: a C compiler and the libc headers (#26). Go itself is the
