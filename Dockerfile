@@ -35,6 +35,7 @@ RUN apt-get update && \
         curl \
         gcc \
         git \
+        gnupg \
         imagemagick \
         lcov \
         libc6-dev \

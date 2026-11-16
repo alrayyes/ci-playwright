@@ -43,9 +43,10 @@ another browser runs `bunx playwright install --with-deps firefox` itself.
 
 It builds on plain Ubuntu rather than the Playwright image, and it needs
 `BuildKit`. Some things the Playwright image had are gone, because nothing here
-uses them: `yarn`, `wget` and `gpg`, the Node headers for native module builds,
+uses them: `yarn` and `wget`, the Node headers for native module builds,
 the `pwuser` account, and the `nodesource` apt source with `/usr/bin/nodejs`.
-`zstd` (for `actions/cache`) and `openssh-client` are installed.
+`zstd` (for `actions/cache`), `openssh-client` and `gnupg` (which
+`codecov/codecov-action` needs to validate an upload) are installed.
 
 ## Tags
 
