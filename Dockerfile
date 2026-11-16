@@ -9,7 +9,7 @@ FROM oven/bun:1.4.4@sha256:1d22548f177f4ff38e0c15baa3c2c46c6c2060ba2d1bc573bb472
 
 # The tag must equal the consumers' @playwright/test version exactly, or Playwright
 # looks for browser builds that are not here. Chromium's builds come from this stage.
-FROM mcr.microsoft.com/playwright:v1.65.0-noble@sha256:9beb546099e11f52d62e505537914870e01a67e0e6b00ae41da4775324e73dbe AS playwright
+FROM mcr.microsoft.com/playwright:v1.65.1-noble@sha256:1507cbfc550a63a6b7396791ca4f00df17beb56342d2447b3f106c306f525579 AS playwright
 
 # Same Ubuntu release as the Playwright image above (noble), so the browser builds
 # copied across find the libraries they were built against.
